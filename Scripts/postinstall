@@ -26,7 +26,7 @@ $dscl . -read "/Users/${user}" &> /dev/null || {
     $dscl . -create /Users/${user} RealName "PunSSH Tunnels"
 }
 
-/usr/bin/install -d -m 0755 -o root -g root /Library/PunSSH/Tunnels
+/usr/bin/install -d -m 0755 -o root -g wheel /Library/PunSSH/Tunnels
 /usr/bin/install -d -m 0755 -o ${user} -g ${group} /Library/PunSSH/Home
 
 /bin/launchctl load "/Library/LaunchDaemons/ch.znerol.punssh-defaults.plist"
