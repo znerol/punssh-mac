@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# punssh-connect - connect to a jump host, fetch config, start tunnel
+
+set -e
+set -u
+
+# Required binaries
+ECHO=/bin/echo
+MKTEMP=/usr/bin/mktemp
+RM=/bin/rm
+SSH=/usr/bin/ssh
+
+# Print usage message and exit.
+usage() {
+    ${ECHO} "${0}: punssh-connect address [SSH args...]"
+    return 1
+}
+
+punssh_connect_run() {
+    WORKDIR="${1}"
+    NAME="${2}"
+    DESTINATION="${3}"
+    shift 3
+
+    ${SSH} "${@}" -T "${DESTINATION}" -- punssh-config "${NAME}" > "${WORKDIR}/config"
+    exec ${SSH} "${@}" -T -N -F "${WORKDIR}/config" "${NAME}"
+}
+
+# Setup temp dir.
+WORKDIR="$(${MKTEMP} -d)"
+cleanup() {
+    ${RM} -rf "${WORKDIR}"
+}
+trap cleanup EXIT
+
+if [ "${#}" -ge 1 ] && [ "${1:-}" != "-h" ] && [ "${1:-}" != "--help" ]; then
+    case "${1}" in
+        *?:?*)
+            DESTINATION="${1%%:*}"
+            NAME="${1#*:}"
+            shift 1
+            punssh_connect_run "${WORKDIR}" "${NAME}" "${DESTINATION}" "${@}"
+            ;;
+        *)
+        usage;;
+    esac
+else
+    usage
+fi

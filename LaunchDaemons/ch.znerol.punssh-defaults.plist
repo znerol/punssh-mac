@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>ch.znerol.punssh-defaults</string>
+	<key>UserName</key>
+	<string>_punssh</string>
+	<key>GroupName</key>
+	<string>_punssh</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Library/PunSSH/Bin/punssh-defaults</string>
+	</array>
+	<key>KeepAlive</key>
+	<dict>
+		<key>SuccessfulExit</key>
+		<true/>
+	</dict>
+	<key>WatchPaths</key>
+	<array>
+		<string>/Library/Preferences/ch.znerol.punssh.plist</string>
+		<string>/Managed Preferences/ch.znerol.punssh.plist</string>
+	</array>
+</dict>
+</plist>
