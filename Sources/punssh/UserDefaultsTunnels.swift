@@ -26,10 +26,12 @@ public struct UserDefaultsTunnels {
                 return nil
             }
 
-            guard let name = info["name"] as? String, let destination = info["destination"] as? String, let hostkeys = info["hostkeys"] as? [String], hostkeys.count > 0 else {
+            guard let rawname = info["name"] as? String, let destination = info["destination"] as? String, let hostkeys = info["hostkeys"] as? [String], hostkeys.count > 0 else {
                 logger.warning("Tunnel name, destination and hostkeys are required and must be of type string")
                 return nil
             }
+
+            let name = substitutePlaceholders(name: rawname)
 
             let user = info["user"] as? String ?? "nobody"
             let group = info["group"] as? String ?? "nogroup"
@@ -43,5 +45,12 @@ public struct UserDefaultsTunnels {
                 group: group
             )
         }
+    }
+
+    private func substitutePlaceholders(name: String) -> String {
+        let hostname = Host.current().name ?? "localhost"
+        let computername = hostname.split(separator: ".")[0]
+        return name
+            .replacingOccurrences(of: "%ComputerName%", with: computername)
     }
 }
