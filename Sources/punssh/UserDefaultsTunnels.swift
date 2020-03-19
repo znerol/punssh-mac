@@ -26,8 +26,8 @@ public struct UserDefaultsTunnels {
                 return nil
             }
 
-            guard let name = info["name"] as? String, let destination = info["destination"] as? String else {
-                logger.warning("Tunnel name and destination are required and must be of type string")
+            guard let name = info["name"] as? String, let destination = info["destination"] as? String, let hostkeys = info["hostkeys"] as? [String], hostkeys.count > 0 else {
+                logger.warning("Tunnel name, destination and hostkeys are required and must be of type string")
                 return nil
             }
 
@@ -38,6 +38,7 @@ public struct UserDefaultsTunnels {
                 label: "\(bundleId).tunnel.\(destination).\(name)",
                 name: name,
                 destination: destination,
+                hostkeys: hostkeys,
                 user: user,
                 group: group
             )

@@ -6,12 +6,14 @@ public struct Tunnel: CustomStringConvertible {
 
     private let name: String
     private let destination: String
+    private let hostkeys: [String]
     private let user: String
     private let group: String
     private let identity: SshIdentity
     private let job: LaunchdJob
     private let def: LaunchdJob.Definition
     private let idfile: URL
+    private let hostfile: URL
 
     public var description: String {
         "Tunnel(\(destination):\(name))"
@@ -21,6 +23,7 @@ public struct Tunnel: CustomStringConvertible {
         label: String,
         name: String,
         destination: String,
+        hostkeys: [String],
         user: String,
         group: String
     ) {
@@ -28,12 +31,14 @@ public struct Tunnel: CustomStringConvertible {
         self.destination = destination
         self.user = user
         self.group = group
+        self.hostkeys = hostkeys
 
         let libdirs = FileManager.default.urls(for: .libraryDirectory, in: .localDomainMask)
         if libdirs.isEmpty {
             fatalError("Failed to find local library directory")
         }
         idfile = URL(fileURLWithPath: "PunSSH/Tunnels/\(destination).\(name)/id", relativeTo: libdirs[0])
+        hostfile = URL(fileURLWithPath: "PunSSH/Tunnels/\(destination).\(name)/known_hosts", relativeTo: libdirs[0])
         identity = SshIdentity(url: idfile, name: name)
 
         job = LaunchdJob(label: label)
@@ -44,8 +49,10 @@ public struct Tunnel: CustomStringConvertible {
             programArguments: [
                 "/Library/PunSSH/Bin/punssh-connect",
                 "\(destination):\(name)",
-                "-i",
-                idfile.path,
+                "-i", idfile.path,
+                "-o", "UserKnownHostsFile=\(hostfile.path)",
+                "-o", "StrictHostKeyChecking=yes",
+                "-o", "UpdateHostKeys=no",
             ],
             runAtLoad: true,
             keepAlive: [
@@ -87,7 +94,19 @@ public struct Tunnel: CustomStringConvertible {
                 _ = job.stop()
             }
 
+            if knownHosts() != hostkeys.joined(separator: "\n") {
+                logger.info("Known hosts changed, attempting to write new hosts to file", metadata: [
+                    "path": "\(hostfile.path)",
+                ])
+                try FileManager.default.createDirectory(at: hostfile.deletingLastPathComponent(),
+                                                        withIntermediateDirectories: true)
+                try hostkeys.joined(separator: "\n").data(using: .utf8)?.write(to: hostfile)
+            }
+
             if identity.pubkey() == "" {
+                logger.info("Identity empty, attempting to generate a new one", metadata: [
+                    "path": "\(idfile.path)",
+                ])
                 try FileManager.default.createDirectory(at: idfile.deletingLastPathComponent(),
                                                         withIntermediateDirectories: true)
                 _ = identity.generate()
@@ -120,6 +139,16 @@ public struct Tunnel: CustomStringConvertible {
 
     public enum TunnelError: Error {
         case LanuchdJobError(error: Error)
+    }
+
+    private func knownHosts() -> String {
+        if let contents = FileManager.default.contents(atPath: hostfile.path) {
+            if let text = String(data: contents, encoding: .utf8) {
+                return text
+            }
+        }
+
+        return ""
     }
 }
 
