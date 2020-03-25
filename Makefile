@@ -1,6 +1,6 @@
 prefix ?= /usr/local
 bindir ?= $(prefix)/bin
-pkgversion ?= 1.0.0
+pkgversion ?= 1.0.1
 
 buildconf ?= release
 builddir := $(shell swift build --configuration $(buildconf) --show-bin-path)
