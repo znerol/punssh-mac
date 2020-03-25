@@ -4,10 +4,6 @@
 <dict>
 	<key>Label</key>
 	<string>ch.znerol.punssh-defaults</string>
-	<key>UserName</key>
-	<string>_punssh</string>
-	<key>GroupName</key>
-	<string>_punssh</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/Library/PunSSH/Bin/punssh-defaults</string>
