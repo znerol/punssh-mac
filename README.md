@@ -19,17 +19,17 @@ Build an installer package:
 
 ## Configuration
 
-Plist file in @/Library/Preferences/ch.znerol.punssh.plist@. It consists of an
+Plist file in `/Library/Preferences/ch.znerol.punssh.plist`. It consists of an
 `array` of `dict`s in the `tunnels` toplevel key. Each `dict` has the following
 key value pairs:
 
-**name** (string): Tunnel name. May contain a %ComputerName% placeholder which
-is replaced by the client host name.
-**destination** (string): SSH destination, e.g., `user@host.tld`.
-**hostkeys** (array of string): SSH host keys for the destination. Copy them
-from `/etc/ssh/ssh_host_*.pub` on the destination or use `ssh-keyscan`.
-**user** (string): Unix user on the client used to start the `ssh` process.
-**group** (string): Unix group on the client used to start the `ssh` process.
+- **name** (string): Tunnel name. May contain a %ComputerName% placeholder
+  which is replaced by the client host name.
+- **destination** (string): SSH destination, e.g., `user@host.tld`.
+- **hostkeys** (array of string): SSH host keys for the destination. Copy them
+  from `/etc/ssh/ssh_host_*.pub` on the destination or use `ssh-keyscan`.
+- **user** (string): Unix user on the client used to start the `ssh` process.
+- **group** (string): Unix group on the client used to start the `ssh` process.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -42,7 +42,7 @@ from `/etc/ssh/ssh_host_*.pub` on the destination or use `ssh-keyscan`.
 			<key>name</key>
 			<string>%ComputerName%.example-tunnel</string>
 			<key>destination</key>
-			<string>_punssh</string>
+			<string>punssh@ssh.example.com</string>
 			<key>hostkeys</key>
 			<array>
 				<string>ssh.example.com ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBC3/rZLS1R1WuWy9h4jh/go3Qwc4KhLWbHgvjvDbHaBCRiLheFKNNksw5ozx4mkM1lY03zeg+EfZTiKV9nqsyjI=</string>
@@ -51,16 +51,22 @@ from `/etc/ssh/ssh_host_*.pub` on the destination or use `ssh-keyscan`.
 			</array>
 			<key>user</key>
 			<string>_punssh</string>
-			<string>punssh@ssh.example.com</string>
 			<key>group</key>
+			<string>_punssh</string>
 		</dict>
 	</array>
 </dict>
 </plist>
 ```
 
+## Monitoring
+
+* Use `punssh-status` to gather tunnel status in JSON format.
+* Use [znerol/munkireport-punssh][2] to integrate it into Munkireport.
+
 ## License
 
 [GPLv3 or later](https://www.gnu.org/licenses/licenses.html#GPL)
 
 [1]: https://github.com/znerol/punssh
+[2]: https://github.com/znerol/munkireport-punssh
